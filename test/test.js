@@ -1,7 +1,10 @@
 "use strict";
 
-var a, b, c, YDOM = Y.DOM.NonExistingModule;
+//Y.one('#test123');
 
+Y.DOM.MON.NonExistingModule;
+
+/*
 var YScreen = YDOM.FakeModule;
 
 a = YDOM;
@@ -28,3 +31,4 @@ listLinks.plug(
 );
 
 var a = YDOM.TestModule;
+*/

@@ -115,37 +115,66 @@ function processAssignmentExpression(expression) {
 	}
 }
 
+function processCallExpression(expression) {
+	var callee;
+
+	callee = expression.callee;
+
+	if (callee && callee.type === 'MemberExpression') {
+		return processMemeberExpression(callee);
+	}
+}
+
 function processExpressionStatement(item) {
-	var expression;
+	var expression, memberExpressionResult;
 
 	expression = item.expression;
 
 	if (expression.type === 'AssignmentExpression' && expression.operator === '=') {
 		processAssignmentExpression(item.expression);
 	}
+	else if(expression.type === 'CallExpression') {
+		memberExpressionResult = processCallExpression(item.expression);
+
+		debugger;
+	}
 }
 
 function processMemeberExpression(item) {
-	var identifier, obj, prop, result;
+	var object, objectIdentifier, objectIdentifierValue, property, result;
 
-	obj = item.object;
-	prop = item.property;
+	object = item.object;
 
-	if (Lang.isObject(obj) && obj.type === 'MemberExpression') {
-		result = processMemeberExpression(obj);
+	property = item.property;
 
-		if (result) {
-			result = addProperty(prop, result);
+	result = {
+		identifier: null,
+		properties: []
+	};
+
+	if (Lang.isObject(object) && object.type === 'MemberExpression') {
+		objectIdentifier = processMemeberExpression(object);
+
+		if (objectIdentifier) {
+			objectIdentifierValue = addProperty(property, objectIdentifier);
+
+			result.identifier = {
+				name: objectIdentifier,
+				value: objectIdentifierValue
+			};
 		}
 	} else {
-		identifier = getValidIdentifier(obj);
+		objectIdentifier = getValidIdentifier(object);
 
-		if (identifier) {
-			result = addProperty(prop, identifiers[identifier]);
+		if (objectIdentifier) {
+			objectIdentifierValue = addProperty(property, identifiers[objectIdentifier]);
 		}
 	}
 
-	return result;
+	return {
+		property: prop,
+		value: result
+	};
 }
 
 function processVariableDeclaration(item) {
@@ -162,7 +191,7 @@ function processVariableDeclaration(item) {
 
 					identifier = item.id.name;
 
-					identifiers[identifier] = result;
+					identifiers[identifier] = result.value;
 				}
 			}
 		}
